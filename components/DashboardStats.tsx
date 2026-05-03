@@ -7,6 +7,11 @@ type Props = {
   icon?: React.ReactElement<{ size?: number; strokeWidth?: number }>;
 };
 
+type StatIconProps = {
+  size?: number;
+  strokeWidth?: number;
+};
+
 export default function DashboardStats({
   title,
   value,
@@ -53,7 +58,12 @@ export default function DashboardStats({
       <div className="relative z-10">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${style.border} ${style.bg} ${style.text} shadow-lg shadow-black/20`}>
-            {icon ? React.cloneElement(icon, { size: 22, strokeWidth: 2 }) : null}
+            {icon
+              ? React.cloneElement(icon as React.ReactElement<StatIconProps>, {
+                  size: 22,
+                  strokeWidth: 2,
+                })
+              : null}
           </div>
 
           <div className="hidden h-10 w-28 sm:block">
