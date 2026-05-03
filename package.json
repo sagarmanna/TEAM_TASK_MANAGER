@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
+    "db:push": "node scripts/prisma-db-push.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
