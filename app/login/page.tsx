@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -93,38 +93,38 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.22),transparent_30rem),linear-gradient(135deg,#020617,#0f172a,#0f766e)] text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-xl">
-        
-        {/* HEADER */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center bg-cyan-400/15 text-cyan-100 border border-cyan-300/20 p-5 rounded-2xl mb-6 shadow-md">
-            <LogIn size={40} />
+    <div className="workspace-bg flex min-h-screen items-center justify-center px-4 py-12 text-white sm:px-6">
+      <div className="w-full max-w-2xl">
+        <section className="mb-8 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-100/30 bg-cyan-300 text-slate-950 shadow-[0_0_30px_rgba(103,232,249,0.28)]">
+            <LogIn size={30} />
           </div>
 
-          <h1 className="text-5xl font-extrabold tracking-tight mb-3">
+          <h1 className="mb-3 text-4xl font-extrabold leading-tight sm:text-5xl">
             Welcome Back
           </h1>
 
-          <p className="text-slate-300">
-            Choose Admin or Member access, then sign in with your
-            workspace account.
+          <p className="mx-auto max-w-lg text-base leading-7 text-slate-300">
+            Choose your access level and sign in to your workspace.
           </p>
-        </div>
+        </section>
 
-        {/* FORM CARD */}
         <form
           onSubmit={handleSubmit}
-          className="bg-slate-950/65 backdrop-blur-xl p-8 md:p-10 rounded-[2rem] space-y-6 border border-white/10 shadow-2xl"
+          className="glass-panel relative space-y-8 overflow-hidden rounded-xl p-6 sm:p-8"
         >
-          
-          {/* ROLE SELECT */}
+          <div className="hex-grid pointer-events-none absolute right-0 top-0 h-40 w-80 opacity-25" />
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-3">
-              Login Type
-            </label>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <label className="text-sm font-semibold text-slate-200">
+                Login Type
+              </label>
+              <span className="text-xs font-medium text-slate-500">
+                Select one
+              </span>
+            </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {roleOptions.map((role) => {
                 const active = form.expectedRole === role.value;
 
@@ -138,18 +138,20 @@ export default function LoginPage() {
                         expectedRole: role.value,
                       }))
                     }
-                    className={`rounded-2xl border p-5 text-left transition-all duration-300 ${
+                    className={`relative rounded-lg border p-5 text-left shadow-lg shadow-black/5 transition-all duration-300 ${
                       active
-                        ? "border-cyan-300/60 bg-gradient-to-br from-cyan-400/10 to-cyan-200/5 text-cyan-50 shadow-lg shadow-cyan-900/40 scale-[1.02]"
+                        ? "border-cyan-300/70 bg-cyan-400/12 text-cyan-50 shadow-cyan-950/20"
                         : "border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20 hover:bg-white/[0.06]"
                     }`}
                   >
-                    <span className="flex items-center gap-3 font-semibold tracking-wide">
-                      {role.icon}
+                    <span className="mb-3 flex items-center gap-3 font-semibold leading-6">
+                      <span className={active ? "text-cyan-200" : "text-slate-400"}>
+                        {role.icon}
+                      </span>
                       {role.title}
                     </span>
 
-                    <span className="mt-2 block text-sm leading-relaxed text-slate-400 tracking-wide">
+                    <span className="block text-sm leading-6 text-slate-400">
                       {role.description}
                     </span>
                   </button>
@@ -158,73 +160,71 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* EMAIL */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Email Address
-            </label>
+          <div className="space-y-6">
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-300">
+                Email Address
+              </label>
 
-            <div className="relative">
-              <Mail
-                size={20}
-                className="absolute left-4 top-3.5 text-slate-500"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="priya@company.com"
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 outline-none transition text-white placeholder-slate-500"
-                required
-              />
+              <div className="relative">
+                <Mail
+                  size={20}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="priya@company.com"
+                  onChange={handleChange}
+                  className="h-14 w-full rounded-lg border border-white/10 bg-slate-950/70 pl-12 pr-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-300">
+                Password
+              </label>
+
+              <div className="relative">
+                <Lock
+                  size={20}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Minimum 8 characters"
+                  onChange={handleChange}
+                  className="h-14 w-full rounded-lg border border-white/10 bg-slate-950/70 pl-12 pr-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
+                  required
+                />
+              </div>
             </div>
           </div>
 
-          {/* PASSWORD */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Password
-            </label>
-
-            <div className="relative">
-              <Lock
-                size={20}
-                className="absolute left-4 top-3.5 text-slate-500"
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Minimum 8 characters"
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-white/10 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 outline-none transition text-white placeholder-slate-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* MESSAGE */}
           {message && (
             <div
-              className={`flex items-center gap-3 p-4 rounded-xl ${
+              className={`flex items-start gap-3 rounded-xl px-4 py-3.5 text-sm leading-6 ${
                 messageType === "success"
                   ? "bg-emerald-500/15 border border-emerald-400/30 text-emerald-200"
                   : "bg-rose-500/15 border border-rose-400/30 text-rose-200"
               }`}
             >
               {messageType === "success" ? (
-                <CheckCircle size={20} />
+                <CheckCircle size={20} className="mt-0.5 shrink-0" />
               ) : (
-                <AlertCircle size={20} />
+                <AlertCircle size={20} className="mt-0.5 shrink-0" />
               )}
-              <span className="text-sm">{message}</span>
+              <span>{message}</span>
             </div>
           )}
 
-          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cyan-300 text-slate-950 hover:bg-cyan-200 py-3.5 rounded-xl font-semibold tracking-wide transition flex items-center justify-center shadow-lg shadow-cyan-900/30 disabled:opacity-50"
+            className="flex h-14 w-full items-center justify-center rounded-lg bg-cyan-200 font-black text-slate-950 shadow-lg shadow-cyan-950/30 transition hover:bg-white disabled:opacity-50"
           >
             <span className="inline-flex items-center justify-center gap-3">
               <LogIn size={20} />
@@ -232,17 +232,21 @@ export default function LoginPage() {
             </span>
           </button>
 
-          {/* FOOTER */}
-          <p className="text-sm text-slate-400 text-center">
+          <p className="text-center text-sm leading-6 text-slate-400">
             No account?{" "}
             <Link
               href="/signup"
-              className="text-cyan-200 hover:text-cyan-100 font-medium transition"
+              className="font-medium text-cyan-200 transition hover:text-cyan-100"
             >
               Create Admin or Member account
             </Link>
           </p>
         </form>
+
+        <p className="mx-auto mt-6 max-w-xl rounded-lg border border-cyan-300/15 bg-cyan-400/10 px-5 py-4 text-center text-sm leading-6 text-cyan-50">
+          Admins manage projects and assignments. Members update their assigned
+          task progress.
+        </p>
       </div>
     </div>
   );

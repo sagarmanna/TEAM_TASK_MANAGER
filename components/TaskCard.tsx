@@ -46,35 +46,35 @@ export default function TaskCard({
   };
 
   return (
-    <div className="bg-slate-950/45 border border-white/10 rounded-2xl p-6 hover:border-cyan-300/30 hover:shadow-lg transition">
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <h3 className="text-lg font-semibold text-white flex-1 line-clamp-2">
+    <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-5 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-slate-950/75 hover:shadow-xl sm:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h3 className="min-w-0 flex-1 text-lg font-semibold leading-7 text-white">
           {title}
         </h3>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {getStatusIcon()}
-          <span className={`text-xs px-3 py-1 rounded-full font-medium ${badgeColor()}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${badgeColor()}`}>
             {status}
           </span>
         </div>
       </div>
 
       {projectName && (
-        <p className="text-slate-400 text-sm mb-2 flex items-center gap-2">
+        <p className="mb-2 flex items-center gap-2 text-sm leading-6 text-slate-400">
           <FolderKanban size={14} />
           {projectName}
         </p>
       )}
 
       {assignedTo && (
-        <p className="text-slate-400 text-sm mb-2 flex items-center gap-2">
+        <p className="mb-2 flex items-center gap-2 text-sm leading-6 text-slate-400">
           <UserRound size={14} />
           {assignedTo}
         </p>
       )}
 
-      <div className="flex items-center text-slate-400 text-sm mt-4 pt-4 border-t border-white/10">
+      <div className="mt-4 flex items-center border-t border-white/10 pt-4 text-sm leading-6 text-slate-400">
         <Clock size={14} className="mr-2" />
         Due: {new Date(dueDate).toLocaleDateString()}
       </div>

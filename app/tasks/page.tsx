@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -164,6 +164,7 @@ export default function TasksPage() {
 
     const res = await fetch("/api/tasks", {
       method: "POST",
+      credentials: "include",
       headers,
       body: JSON.stringify(taskData),
     });
@@ -179,16 +180,19 @@ export default function TasksPage() {
       // Reload data
       const [tasksRes, projectsRes, usersRes] = await Promise.all([
         fetch("/api/tasks", {
+          credentials: "include",
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         }),
         fetch("/api/projects", {
+          credentials: "include",
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         }),
         fetch("/api/users", {
+          credentials: "include",
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -213,6 +217,7 @@ export default function TasksPage() {
     const token = localStorage.getItem('token');
     const res = await fetch(`/api/tasks/${id}`, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
@@ -223,6 +228,7 @@ export default function TasksPage() {
     if (res.ok) {
       // Reload tasks
       const tasksRes = await fetch("/api/tasks", {
+        credentials: "include",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -245,6 +251,7 @@ export default function TasksPage() {
     const token = localStorage.getItem('token');
     const res = await fetch("/api/tasks", {
       method: "DELETE",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
@@ -254,6 +261,7 @@ export default function TasksPage() {
 
     if (res.ok) {
       const tasksRes = await fetch("/api/tasks", {
+        credentials: "include",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -268,18 +276,19 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="workspace-bg min-h-screen text-white">
       <Navbar />
 
       <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
-          <div className="mb-10">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+        <main className="mx-auto w-full max-w-[118rem] flex-1 px-3 py-4 sm:px-5 lg:px-6">
+          <div className="glass-panel relative mb-4 overflow-hidden rounded-xl p-4 sm:p-5 lg:p-6">
+            <div className="hex-grid pointer-events-none absolute right-0 top-0 h-40 w-96 opacity-35" />
+            <h1 className="relative mb-2 text-4xl font-black leading-none text-white sm:text-5xl">
               {isMember ? "My Assigned Tasks" : "Tasks"}
             </h1>
-            <p className="text-slate-400 text-lg">
+            <p className="relative max-w-3xl text-base leading-6 text-slate-300">
               {isMember
                 ? "View tasks assigned by an admin and update your progress."
                 : "Create, assign and track tasks across your projects."}
@@ -287,42 +296,42 @@ export default function TasksPage() {
           </div>
 
           {!isMember && (
-          <div className="bg-slate-950/50 border border-white/10 rounded-[1.75rem] p-6 md:p-8 mb-10 shadow-xl">
-            <h3 className="text-lg font-semibold mb-5 flex items-center gap-2">
-              <Plus size={20} className="text-blue-400" />
+          <div className="glass-panel-soft mb-4 rounded-xl p-4 sm:p-5">
+            <h3 className="mb-5 flex items-center gap-2 text-lg font-semibold leading-7">
+              <Plus size={20} className="text-cyan-300" />
               Create New Task
             </h3>
 
             {projects.length === 0 ? (
-              <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-100">
+              <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-100">
                 Create a project first before creating tasks. Go to the Projects page to add one.
               </div>
             ) : null}
 
             <form
               onSubmit={createTask}
-              className="grid lg:grid-cols-2 gap-6"
+              className="grid gap-5 lg:grid-cols-2"
             >
               <div>
-                <label className="text-sm text-slate-400 mb-2 block">Task Title</label>
+                <label className="mb-2 block text-sm font-medium text-slate-300">Task Title</label>
                 <input
                   type="text"
                   placeholder="Finalize onboarding checklist"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white placeholder-slate-500"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/70 px-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm text-slate-400 mb-2 block">Project</label>
+                <label className="mb-2 block text-sm font-medium text-slate-300">Project</label>
                 <select
                   value={form.projectId}
                   onChange={(e) =>
                     setForm({ ...form, projectId: e.target.value })
                   }
-                  className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/70 px-4 text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                   required
                 >
                   {projects.length === 0 && (
@@ -337,11 +346,11 @@ export default function TasksPage() {
               </div>
 
               <div>
-                <label className="text-sm text-slate-400 mb-2 block">Assign To</label>
+                <label className="mb-2 block text-sm font-medium text-slate-300">Assign To</label>
                 <select
                   value={form.userId}
                   onChange={(e) => setForm({ ...form, userId: e.target.value })}
-                  className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/70 px-4 text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                 >
                   <option value="">Unassigned</option>
                   {users.map((user) => (
@@ -353,19 +362,19 @@ export default function TasksPage() {
               </div>
 
               <div>
-                <label className="text-sm text-slate-400 mb-2 block">Due Date</label>
+                <label className="mb-2 block text-sm font-medium text-slate-300">Due Date</label>
                 <input
                   type="date"
                   value={form.dueDate}
                   onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                  className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/70 px-4 text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                   required
                 />
               </div>
 
               <button
                 disabled={projects.length === 0}
-                className="bg-cyan-300 text-slate-950 hover:bg-cyan-200 disabled:opacity-50 px-6 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 h-fit lg:self-end"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-6 font-black text-slate-950 shadow-lg shadow-cyan-950/25 transition hover:bg-white disabled:opacity-50 lg:self-end"
               >
                 <Plus size={18} />
                 Create Task
@@ -377,22 +386,22 @@ export default function TasksPage() {
           </div>
           )}
 
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1 md:max-w-md">
-              <Search size={18} className="absolute left-4 top-3.5 text-slate-500" />
+              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-12 pr-4 py-3 focus:border-blue-500 focus:outline-none transition text-white placeholder-slate-500"
+                className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/55 pl-12 pr-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
               />
             </div>
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition text-white"
+              className="h-11 rounded-lg border border-white/10 bg-slate-950/55 px-4 text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
             >
               <option value="ALL">All Status</option>
               <option value="TODO">Pending</option>
@@ -408,7 +417,7 @@ export default function TasksPage() {
           )}
 
           {!loading && filteredTasks.length === 0 && (
-            <div className="text-center py-20">
+            <div className="glass-panel-soft rounded-xl py-20 text-center">
               <AlertCircle size={48} className="mx-auto text-slate-500 mb-4" />
               <p className="text-slate-400 text-lg">
                 {isMember
@@ -419,39 +428,39 @@ export default function TasksPage() {
           )}
 
           {!loading && filteredTasks.length > 0 && (
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+            <div className="glass-panel-soft overflow-hidden rounded-xl">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-900 border-b border-slate-700">
+                <table className="w-full min-w-[58rem] text-sm">
+                  <thead className="border-b border-white/10 bg-slate-950/80">
                     <tr>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Task</th>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Project</th>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Assigned To</th>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Due Date</th>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Status</th>
-                      <th className="px-6 py-4 text-left text-slate-300 font-semibold">Update</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Task</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Project</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Assigned To</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Due Date</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Status</th>
+                      <th className="px-5 py-4 text-left font-semibold text-slate-300">Update</th>
                       {!isMember && (
-                        <th className="px-6 py-4 text-left text-slate-300 font-semibold">Actions</th>
+                        <th className="px-5 py-4 text-left font-semibold text-slate-300">Actions</th>
                       )}
                     </tr>
                   </thead>
 
-                  <tbody className="divide-y divide-slate-700">
+                  <tbody className="divide-y divide-white/5">
                     {filteredTasks.map((task) => (
                       <tr
                         key={task.id}
-                        className="hover:bg-slate-700/30 transition"
+                        className="transition hover:bg-white/[0.04]"
                       >
-                        <td className="px-6 py-4 font-medium text-white">{task.title}</td>
-                        <td className="px-6 py-4 text-slate-400">{task.project.name}</td>
-                        <td className="px-6 py-4 text-slate-400">
+                        <td className="max-w-[18rem] px-5 py-4 font-medium leading-6 text-white">{task.title}</td>
+                        <td className="max-w-[14rem] px-5 py-4 leading-6 text-slate-400">{task.project.name}</td>
+                        <td className="px-5 py-4 leading-6 text-slate-400">
                           {task.assignedTo?.name || <span className="text-slate-500">Unassigned</span>}
                         </td>
-                        <td className="px-6 py-4 text-slate-400">
+                        <td className="px-5 py-4 text-slate-400">
                           {new Date(task.dueDate).toLocaleDateString()}
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-5 py-4">
                           <span
                             className={`text-xs px-3 py-1 rounded-full font-semibold ${badgeColor[task.status]}`}
                           >
@@ -459,13 +468,13 @@ export default function TasksPage() {
                           </span>
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-5 py-4">
                           <select
                             value={task.status}
                             onChange={(e) =>
                               updateStatus(task.id, e.target.value as Status)
                             }
-                            className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-blue-500 transition text-white"
+                            className="h-9 rounded-lg border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/20"
                           >
                             <option value="TODO">Pending</option>
                             <option value="IN_PROGRESS">In Progress</option>
@@ -473,11 +482,11 @@ export default function TasksPage() {
                           </select>
                         </td>
                         {!isMember && (
-                          <td className="px-6 py-4">
+                          <td className="px-5 py-4">
                             <button
                               type="button"
                               onClick={() => deleteTask(task.id)}
-                              className="inline-flex items-center gap-2 rounded-lg bg-rose-500/90 px-3 py-2 text-xs font-semibold text-white transition hover:bg-rose-500"
+                              className="inline-flex h-9 items-center gap-2 rounded-lg border border-rose-300/20 bg-rose-500/90 px-3 text-xs font-bold text-white shadow-lg shadow-rose-950/20 transition hover:bg-rose-400"
                             >
                               <Trash2 size={14} />
                               Delete

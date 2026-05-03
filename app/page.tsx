@@ -1,234 +1,259 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import {
   ArrowRight,
   CalendarClock,
   CheckCircle2,
   FolderKanban,
+  Layers3,
   ShieldCheck,
   Sparkles,
   UsersRound,
 } from "lucide-react";
 
-const previewTasks = [
-  {
-    title: "Finalize Railway deployment",
-    owner: "Admin",
-    status: "Done",
-    due: "Today",
-    color: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    title: "Assign QA checklist",
-    owner: "Priya Shah",
-    status: "In progress",
-    due: "May 08",
-    color: "bg-amber-100 text-amber-700",
-  },
-  {
-    title: "Review overdue tasks",
-    owner: "Marcus Lee",
-    status: "Pending",
-    due: "May 12",
-    color: "bg-sky-100 text-sky-700",
-  },
-];
+export const dynamic = "force-dynamic";
 
 const features = [
   {
     title: "Admin controls",
     body: "Create projects and assign work to every team member.",
-    icon: <ShieldCheck size={20} />,
+    icon: <ShieldCheck size={18} />,
   },
   {
     title: "Member workflow",
-    body: "Members can update only their assigned task progress.",
-    icon: <UsersRound size={20} />,
+    body: "Members update only their assigned task progress.",
+    icon: <UsersRound size={18} />,
   },
   {
     title: "Live dashboard",
     body: "Track status, progress, and overdue delivery risks.",
-    icon: <CalendarClock size={20} />,
+    icon: <CalendarClock size={18} />,
   },
 ];
 
-export default function HomePage() {
-  return (
-    <main className="min-h-screen overflow-x-hidden bg-[#eef2ff] text-slate-950">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -left-28 -top-28 h-80 w-80 rounded-full bg-cyan-300/50 blur-3xl" />
-        <div className="absolute right-0 top-0 h-[34rem] w-[34rem] rounded-full bg-indigo-300/50 blur-3xl" />
-        <div className="absolute bottom-0 left-1/2 h-96 w-96 rounded-full bg-emerald-200/60 blur-3xl" />
-      </div>
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-      <section className="relative mx-auto flex min-h-screen w-full max-w-7xl items-center px-5 py-8 sm:px-8 lg:px-10">
-        <div className="grid w-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 shadow-2xl shadow-indigo-200/70 backdrop-blur-xl lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="flex min-h-[42rem] flex-col justify-between p-7 sm:p-10 lg:p-12">
+async function getHomeSnapshot() {
+  try {
+    const now = new Date();
+    const [totalTasks, completedTasks, overdueTasks, activeProject, recentTasks, users] =
+      await Promise.all([
+        prisma.task.count(),
+        prisma.task.count({ where: { status: "DONE" } }),
+        prisma.task.count({ where: { dueDate: { lt: now }, status: { not: "DONE" } } }),
+        prisma.project.findFirst({ include: { tasks: true }, orderBy: { name: "asc" } }),
+        prisma.task.findMany({
+          take: 3,
+          orderBy: { dueDate: "asc" },
+          include: { assignedTo: { select: { name: true } } },
+        }),
+        prisma.user.findMany({ take: 3, orderBy: { name: "asc" }, select: { name: true } }),
+      ]);
+
+    return {
+      totalTasks,
+      completedTasks,
+      overdueTasks,
+      completionRate: totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100),
+      projectName: activeProject?.name ?? "No active project",
+      recentTasks,
+      users,
+    };
+  } catch {
+    return {
+      totalTasks: 0,
+      completedTasks: 0,
+      overdueTasks: 0,
+      completionRate: 0,
+      projectName: "No active project",
+      recentTasks: [],
+      users: [],
+    };
+  }
+}
+
+export default async function HomePage() {
+  const snapshot = await getHomeSnapshot();
+  const pendingTasks = Math.max(snapshot.totalTasks - snapshot.completedTasks, 0);
+
+  return (
+    <main className="workspace-bg min-h-screen overflow-hidden text-white">
+      <header className="border-b border-cyan-100/10 bg-[#070a1a]/90 backdrop-blur-2xl">
+        <div className="mx-auto flex min-h-[4rem] w-full max-w-[120rem] items-center justify-between px-4 py-2.5 sm:px-6">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-100/30 bg-cyan-300 text-slate-950 shadow-[0_0_26px_rgba(103,232,249,0.28)]">
+              <Layers3 size={24} />
+            </div>
             <div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
-                  <FolderKanban size={25} />
+              <h1 className="text-xl font-black leading-tight sm:text-2xl">Team Task Manager</h1>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-cyan-300/90">
+                Workspace Control
+              </p>
+            </div>
+          </Link>
+
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="hidden h-10 items-center rounded-lg border border-white/10 bg-white/[0.03] px-4 text-sm font-bold text-white transition hover:border-cyan-200/25 hover:bg-cyan-300/10 sm:flex"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="flex h-10 items-center gap-2 rounded-lg bg-rose-500 px-4 text-sm font-black text-white shadow-lg shadow-rose-950/30 transition hover:bg-rose-400"
+            >
+              Get Started
+              <ArrowRight size={16} />
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-[120rem] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+        <aside className="hidden border-r border-cyan-100/10 bg-[#070d1d]/70 lg:block">
+          <p className="border-b border-white/10 px-3 py-2 text-[11px] font-medium uppercase text-slate-400/90">
+            Navigation
+          </p>
+          <div className="space-y-1 p-2">
+            {["Dashboard", "Projects", "Tasks"].map((item, index) => (
+              <div
+                key={item}
+                className={`flex items-center gap-3 border-l-2 p-3 ${
+                  index === 0 ? "border-cyan-300 bg-cyan-300/13" : "border-transparent"
+                }`}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-slate-900/70 text-cyan-200">
+                  <FolderKanban size={18} />
                 </div>
                 <div>
-                  <p className="text-2xl font-black tracking-tight text-indigo-700">
-                    Tasky
-                  </p>
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                    Team task manager
+                  <p className="text-sm font-bold">{item}</p>
+                  <p className="text-xs text-slate-500">
+                    {index === 0 ? "Overview & analytics" : index === 1 ? "Manage all projects" : "Track daily tasks"}
                   </p>
                 </div>
               </div>
+            ))}
+          </div>
+        </aside>
 
-              <div className="mt-16 max-w-xl">
-                <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-bold text-indigo-700">
-                  <Sparkles size={16} />
-                  Railway-ready full-stack project workspace
-                </p>
+        <div className="glass-panel relative overflow-hidden rounded-xl p-4 sm:p-6 lg:p-7">
+          <div className="hex-grid pointer-events-none absolute right-0 top-0 h-52 w-[34rem] opacity-45" />
 
-                <h1 className="text-4xl font-black leading-[1.05] tracking-[-0.04em] text-slate-950 sm:text-5xl lg:text-6xl">
-                  Manage projects, owners, and deadlines in one place.
-                </h1>
-
-                <p className="mt-6 max-w-lg text-base leading-8 text-slate-600 sm:text-lg">
-                  A realistic project workspace with signup, login, Admin and
-                  Member access, task assignments, overdue tracking, and
-                  database-backed REST APIs.
-                </p>
-
-                <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                  <Link
-                    href="/signup"
-                    className="group inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-indigo-600 px-7 py-4 text-sm font-black uppercase tracking-[0.14em] text-white shadow-xl shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-700"
-                  >
-                    Create Workspace
-                    <ArrowRight
-                      size={17}
-                      className="transition group-hover:translate-x-1"
-                    />
-                  </Link>
-
-                  <Link
-                    href="/login"
-                    className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-slate-200 bg-white px-7 py-4 text-sm font-black uppercase tracking-[0.14em] text-slate-800 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50"
-                  >
-                    Sign In
-                  </Link>
-                </div>
+          <div className="relative mb-5 flex flex-col gap-5 border-b border-cyan-100/10 pb-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-black uppercase tracking-wide text-cyan-100">
+                <Sparkles size={14} />
+                Workspace Analytics
               </div>
+              <h2 className="text-5xl font-black leading-none sm:text-6xl lg:text-7xl">
+                Dashboard
+              </h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                Manage projects, owners, deadlines, and delivery risks from one compact control room.
+              </p>
             </div>
 
-            <div className="mt-12 grid gap-4 sm:grid-cols-3">
-              {features.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="rounded-3xl border border-slate-100 bg-slate-50/80 p-5"
-                >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm">
-                    {feature.icon}
-                  </div>
-                  <h3 className="font-black tracking-tight text-slate-950">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {feature.body}
-                  </p>
-                </div>
-              ))}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/signup"
+                className="flex h-12 items-center justify-center gap-2 rounded-lg bg-slate-100 px-6 text-sm font-black text-slate-950 transition hover:bg-cyan-100"
+              >
+                Create Workspace
+                <ArrowRight size={17} />
+              </Link>
+              <Link
+                href="/login"
+                className="flex h-12 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-6 text-sm font-black text-white transition hover:border-cyan-300/25 hover:bg-cyan-300/10"
+              >
+                Sign In
+              </Link>
             </div>
           </div>
 
-          <div className="relative isolate overflow-hidden bg-[#8d8af7] p-6 sm:p-10 lg:p-12">
-            <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/25 blur-3xl" />
-            <div className="absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-cyan-200/40 blur-3xl" />
-
-            <div className="relative flex h-full min-h-[42rem] flex-col justify-between rounded-[1.75rem] border border-white/30 bg-white/16 p-6 text-white shadow-2xl shadow-indigo-900/20 backdrop-blur-md sm:p-8">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-white/70">
-                      Operations snapshot
-                    </p>
-                    <h2 className="mt-1 text-3xl font-black tracking-tight">
-                      Sprint Delivery
-                    </h2>
-                  </div>
-                  <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-indigo-700">
-                    72% on track
-                  </span>
-                </div>
-
-                <div className="mt-8 rounded-[1.5rem] bg-white p-5 text-slate-950 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                    <div>
-                      <p className="text-sm font-bold text-slate-400">
-                        Project
-                      </p>
-                      <h3 className="text-xl font-black">Website Launch</h3>
-                    </div>
-                    <div className="flex -space-x-2">
-                      {["P", "M", "A"].map((name) => (
-                        <span
-                          key={name}
-                          className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-indigo-100 text-sm font-black text-indigo-700"
-                        >
-                          {name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-5 space-y-3">
-                    {previewTasks.map((task) => (
-                      <div
-                        key={task.title}
-                        className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h4 className="font-black tracking-tight">
-                              {task.title}
-                            </h4>
-                            <p className="mt-1 text-sm text-slate-500">
-                              Assigned to {task.owner}
-                            </p>
-                          </div>
-                          <span
-                            className={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${task.color}`}
-                          >
-                            {task.status}
-                          </span>
-                        </div>
-                        <p className="mt-3 text-sm font-semibold text-slate-400">
-                          Due {task.due}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(21rem,0.9fr)]">
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {[
-                  ["18", "Tasks"],
-                  ["07", "Done"],
-                  ["03", "Overdue"],
-                ].map(([value, label]) => (
-                  <div
-                    key={label}
-                    className="rounded-3xl bg-white/18 p-5 text-center ring-1 ring-white/20"
-                  >
-                    <p className="text-3xl font-black">{value}</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-white/70">
-                      {label}
-                    </p>
+                  { label: "Total Tasks", value: snapshot.totalTasks, tone: "text-blue-200" },
+                  { label: "Completed", value: snapshot.completedTasks, tone: "text-emerald-200" },
+                  { label: "Pending", value: pendingTasks, tone: "text-amber-200" },
+                ].map((stat) => (
+                  <div key={stat.label} className="glass-panel-soft rounded-xl p-4">
+                    <CheckCircle2 className={stat.tone} size={22} />
+                    <p className="mt-4 text-4xl font-black leading-none">{stat.value}</p>
+                    <p className="mt-2 text-xs font-bold uppercase text-slate-400">{stat.label}</p>
                   </div>
                 ))}
               </div>
 
-              <p className="mt-8 flex items-center justify-center gap-2 text-center text-sm font-semibold leading-6 text-white/80">
-                <CheckCircle2 size={18} />
-                Built for Admin and Member workflows with real database records.
-              </p>
+              <section className="glass-panel-soft rounded-xl p-4">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-300/20 bg-blue-500/12 text-blue-200">
+                    <FolderKanban size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">Project Progress</h3>
+                    <p className="text-sm text-slate-300">{snapshot.projectName}</p>
+                  </div>
+                </div>
+
+                <div className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-slate-200/80">
+                  <div className="absolute inset-x-16 top-1/2 h-4 -translate-y-1/2 rotate-[-28deg] rounded bg-slate-400/45" />
+                  <span className="relative rounded-lg bg-slate-700/65 px-4 py-2 font-semibold text-white shadow-lg">
+                    {snapshot.completionRate}% On Track
+                  </span>
+                </div>
+              </section>
             </div>
+
+            <div className="space-y-3">
+              <section className="glass-panel-soft rounded-xl p-4">
+                <h3 className="mb-3 text-xl font-black">Team Members</h3>
+                <div className="space-y-3">
+                  {snapshot.users.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-white/10 px-4 py-5 text-center text-sm text-slate-400">
+                      No members yet.
+                    </p>
+                  ) : (
+                    snapshot.users.map((user) => (
+                      <div key={user.name} className="flex items-center gap-3 border-b border-white/10 pb-3 last:border-b-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-cyan-300/20 text-xs font-black">
+                          {initials(user.name)}
+                        </div>
+                        <p className="font-bold">{user.name}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+              <section className="glass-panel-soft rounded-xl p-4">
+                <h3 className="mb-3 text-xl font-black">System Alerts</h3>
+                <div className="rounded-lg border border-rose-300/20 bg-rose-400/10 p-4">
+                  <p className="text-4xl font-black text-rose-200">{snapshot.overdueTasks}</p>
+                  <p className="mt-2 text-xs font-bold uppercase text-slate-400">Overdue Tasks</p>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature.title} className="glass-panel-soft rounded-xl p-4">
+                <div className="mb-3 text-cyan-200">{feature.icon}</div>
+                <h3 className="text-sm font-black uppercase tracking-wide">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{feature.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

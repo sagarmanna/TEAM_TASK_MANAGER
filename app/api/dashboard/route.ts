@@ -27,7 +27,12 @@ export async function GET() {
       }),
       prisma.project.findMany({
         include: {
-          tasks: true,
+          tasks: {
+            select: {
+              status: true,
+              dueDate: true,
+            },
+          },
         },
         orderBy: {
           name: "asc",
@@ -68,10 +73,24 @@ export async function GET() {
       const done = project.tasks.filter(
         (task) => task.status === "DONE"
       ).length;
+      const inProgress = project.tasks.filter(
+        (task) => task.status === "IN_PROGRESS"
+      ).length;
+      const pending = project.tasks.filter(
+        (task) => task.status === "TODO"
+      ).length;
+      const overdue = project.tasks.filter(
+        (task) => task.dueDate < now && task.status !== "DONE"
+      ).length;
 
       return {
         id: project.id,
         name: project.name,
+        totalTasks: total,
+        completedTasks: done,
+        inProgressTasks: inProgress,
+        pendingTasks: pending,
+        overdueTasks: overdue,
         progress: total === 0 ? 0 : Math.round((done / total) * 100),
       };
     });

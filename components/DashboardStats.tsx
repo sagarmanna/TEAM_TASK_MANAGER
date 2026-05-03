@@ -4,7 +4,7 @@ type Props = {
   title: string;
   value: string | number;
   variant?: "blue" | "emerald" | "amber" | "rose";
-  icon?: React.ReactNode;
+  icon?: React.ReactElement<{ size?: number; strokeWidth?: number }>;
 };
 
 export default function DashboardStats({
@@ -15,52 +15,48 @@ export default function DashboardStats({
 }: Props) {
   const variants = {
     blue: {
-      bg: "bg-blue-500/10",
-      text: "text-blue-400",
-      border: "border-blue-500/20",
-      glow: "from-blue-500/20",
-      wave: "stroke-blue-400/50",
+      bg: "bg-blue-500/12",
+      text: "text-blue-300",
+      border: "border-blue-300/20",
+      glow: "from-blue-400/25",
+      wave: "stroke-blue-300/60",
     },
     emerald: {
-      bg: "bg-emerald-500/10",
-      text: "text-emerald-400",
-      border: "border-emerald-500/20",
-      glow: "from-emerald-500/20",
-      wave: "stroke-emerald-400/50",
+      bg: "bg-emerald-500/12",
+      text: "text-emerald-300",
+      border: "border-emerald-300/20",
+      glow: "from-emerald-400/25",
+      wave: "stroke-emerald-300/60",
     },
     amber: {
-      bg: "bg-amber-500/10",
-      text: "text-amber-400",
-      border: "border-amber-500/20",
-      glow: "from-amber-500/20",
-      wave: "stroke-amber-400/50",
+      bg: "bg-amber-500/12",
+      text: "text-amber-300",
+      border: "border-amber-300/20",
+      glow: "from-amber-400/25",
+      wave: "stroke-amber-300/60",
     },
     rose: {
-      bg: "bg-rose-500/10",
-      text: "text-rose-400",
-      border: "border-rose-500/20",
-      glow: "from-rose-500/20",
-      wave: "stroke-rose-400/50",
+      bg: "bg-rose-500/12",
+      text: "text-rose-300",
+      border: "border-rose-300/20",
+      glow: "from-rose-400/25",
+      wave: "stroke-rose-300/60",
     },
   };
 
   const style = variants[variant];
 
   return (
-    <div className="group relative overflow-hidden rounded-[28px] border border-white/5 bg-slate-900/40 p-7 backdrop-blur-xl transition-all duration-300 hover:border-white/10 hover:bg-slate-900/60 hover:shadow-2xl hover:shadow-black/50">
-      
-      {/* 1. Corner Glow Effect */}
+    <div className="group relative min-h-[7rem] overflow-hidden rounded-xl border border-slate-400/20 bg-slate-950/36 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl transition-all duration-300 hover:border-cyan-200/30 hover:bg-slate-900/55">
       <div className={`absolute -right-10 -top-10 h-32 w-32 bg-gradient-to-br ${style.glow} to-transparent blur-3xl opacity-30 transition-opacity duration-500 group-hover:opacity-60`} />
 
       <div className="relative z-10">
-        <div className="mb-10 flex items-start justify-between">
-          {/* 2. Icon Container with Glass Effect */}
-          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${style.border} ${style.bg} ${style.text} shadow-lg shadow-black/20`}>
-            {icon ? React.cloneElement(icon as React.ReactElement<{ size?: number; strokeWidth?: number }>, { size: 24, strokeWidth: 2 }) : null}
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${style.border} ${style.bg} ${style.text} shadow-lg shadow-black/20`}>
+            {icon ? React.cloneElement(icon, { size: 22, strokeWidth: 2 }) : null}
           </div>
 
-          {/* 3. Fluid Wave Sparkline (SVG) */}
-          <div className="h-12 w-24">
+          <div className="hidden h-10 w-28 sm:block">
             <svg viewBox="0 0 100 40" className="h-full w-full overflow-visible">
               <path
                 d="M0 30 Q 25 10, 50 30 T 100 20"
@@ -74,18 +70,14 @@ export default function DashboardStats({
         </div>
 
         <div className="space-y-1">
-          {/* 4. Stats Content */}
-          <h2 className="text-5xl font-bold tracking-tight text-white transition-transform duration-300 group-hover:scale-[1.02]">
+          <h2 className="text-3xl font-black leading-none text-white sm:text-4xl">
             {value}
           </h2>
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-slate-400">
+          <p className="text-xs font-bold uppercase leading-5 text-slate-400">
             {title}
           </p>
         </div>
       </div>
-
-      {/* 5. Animated Bottom Accent Line */}
-      <div className={`absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r ${style.text.replace('text-', 'from-')} to-transparent transition-all duration-700 ease-out group-hover:w-full`} />
     </div>
   );
 }

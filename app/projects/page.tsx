@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -22,6 +22,18 @@ type User = {
   email: string;
   role: "ADMIN" | "MEMBER";
 };
+
+function calculateProgress(project: Project) {
+  if (project.tasks.length === 0) {
+    return 0;
+  }
+
+  const done = project.tasks.filter(
+    (task) => task.status === "DONE"
+  ).length;
+
+  return Math.round((done / project.tasks.length) * 100);
+}
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -91,6 +103,7 @@ export default function ProjectsPage() {
     const token = localStorage.getItem('token');
     const res = await fetch("/api/projects", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
@@ -102,6 +115,7 @@ export default function ProjectsPage() {
       setForm({ name: "", description: "" });
       // Reload projects
       const reloadRes = await fetch("/api/projects", {
+        credentials: "include",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -110,8 +124,8 @@ export default function ProjectsPage() {
       setProjects(data);
       setMessage("Project created successfully.");
     } else {
-      const data = await res.json();
-      setMessage(data.message || "Project could not be created.");
+      const errData = await res.json();
+      setMessage(errData.message || "Project could not be created.");
     }
   }
 
@@ -124,6 +138,7 @@ export default function ProjectsPage() {
     const token = localStorage.getItem('token');
     const res = await fetch("/api/projects", {
       method: "DELETE",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : "",
@@ -133,6 +148,7 @@ export default function ProjectsPage() {
 
     if (res.ok) {
       const reloadRes = await fetch("/api/projects", {
+        credentials: "include",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -141,37 +157,27 @@ export default function ProjectsPage() {
       setProjects(data);
       setMessage("Project deleted successfully.");
     } else {
-      const data = await res.json();
-      setMessage(data.message || "Project could not be deleted.");
+      const errData = await res.json();
+      setMessage(errData.message || "Project could not be deleted.");
     }
-  }
-
-  function progress(project: Project) {
-    if (project.tasks.length === 0) {
-      return 0;
-    }
-
-    const done = project.tasks.filter(
-      (task) => task.status === "DONE"
-    ).length;
-
-    return Math.round((done / project.tasks.length) * 100);
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="workspace-bg min-h-screen text-white">
       <Navbar />
 
       <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
-          <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-8 mb-10">
+        <main className="mx-auto w-full max-w-[118rem] flex-1 px-3 py-4 sm:px-5 lg:px-6">
+          <div className="glass-panel relative mb-4 overflow-hidden rounded-xl p-4 sm:p-5 lg:p-6">
+            <div className="hex-grid pointer-events-none absolute right-0 top-0 h-40 w-96 opacity-35" />
+            <div className="relative flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+              <h1 className="mb-2 text-4xl font-black leading-none text-white sm:text-5xl">
                 Projects
               </h1>
-              <p className="text-slate-400 text-lg">
+              <p className="max-w-3xl text-base leading-6 text-slate-300">
                 {isMember
                   ? "View project progress for work assigned by your admin."
                   : "Create and manage your projects with real-time task tracking."}
@@ -181,7 +187,7 @@ export default function ProjectsPage() {
             {!isMember && (
               <form
                 onSubmit={createProject}
-                className="bg-slate-950/50 border border-white/10 rounded-[1.5rem] p-6 grid md:grid-cols-2 gap-4 w-full xl:max-w-2xl shadow-xl"
+                className="glass-panel-soft grid w-full gap-3 rounded-xl p-4 md:grid-cols-2 xl:max-w-2xl"
               >
                 <input
                   type="text"
@@ -190,7 +196,7 @@ export default function ProjectsPage() {
                   onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                   }
-                  className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white placeholder-slate-500"
+                  className="h-11 rounded-lg border border-white/10 bg-slate-950/65 px-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                   required
                 />
 
@@ -201,11 +207,11 @@ export default function ProjectsPage() {
                   onChange={(e) =>
                     setForm({ ...form, description: e.target.value })
                   }
-                  className="bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 focus:outline-none transition text-white placeholder-slate-500"
+                  className="h-11 rounded-lg border border-white/10 bg-slate-950/65 px-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
                   required
                 />
 
-                <button className="bg-cyan-300 text-slate-950 hover:bg-cyan-200 px-5 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 md:col-span-2">
+                <button className="flex h-11 items-center justify-center gap-2 rounded-lg bg-cyan-200 px-5 font-black text-slate-950 shadow-lg shadow-cyan-950/25 transition hover:bg-white md:col-span-2">
                   <FolderPlus size={20} />
                   Create
                 </button>
@@ -214,17 +220,18 @@ export default function ProjectsPage() {
                 )}
               </form>
             )}
+            </div>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-4">
             <div className="relative max-w-md">
-              <Search size={20} className="absolute left-4 top-3.5 text-slate-500" />
+              <Search size={20} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3 focus:border-blue-500 focus:outline-none transition text-white placeholder-slate-500"
+                className="h-11 w-full rounded-lg border border-white/10 bg-slate-950/55 pl-12 pr-4 text-white outline-none transition placeholder-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/25"
               />
             </div>
           </div>
@@ -236,7 +243,7 @@ export default function ProjectsPage() {
           )}
 
           {!loading && filteredProjects.length === 0 && (
-            <div className="text-center py-20">
+            <div className="glass-panel-soft rounded-xl py-20 text-center">
               <Folder size={48} className="mx-auto text-slate-500 mb-4" />
               <p className="text-slate-400 text-lg">
                 {isMember
@@ -246,30 +253,30 @@ export default function ProjectsPage() {
             </div>
           )}
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredProjects.map((project) => {
-              const projectProgress = progress(project);
+              const projectProgress = calculateProgress(project);
 
               return (
                 <div
                   key={project.id}
-                  className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-slate-600 hover:shadow-lg transition"
+                  className="glass-panel-soft rounded-xl p-5 transition hover:border-cyan-300/30 hover:bg-slate-900/70"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-white flex-1">{project.name}</h2>
-                    <div className="bg-blue-600 p-2 rounded-lg">
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <h2 className="min-w-0 flex-1 break-words text-xl font-bold leading-7 text-white sm:text-2xl">{project.name}</h2>
+                    <div className="shrink-0 rounded-lg border border-cyan-300/20 bg-cyan-400/15 p-2 text-cyan-200">
                       <Folder size={24} />
                     </div>
                   </div>
 
-                  <p className="text-slate-400 text-sm mb-6 line-clamp-2">
+                  <p className="mb-6 min-h-12 text-sm leading-6 text-slate-400">
                     {project.description}
                   </p>
 
-                  <div className="bg-slate-700/30 p-4 rounded-xl mb-6">
-                    <div className="flex justify-between items-center mb-2">
+                  <div className="mb-6 rounded-lg border border-white/10 bg-slate-950/45 p-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
                       <span className="text-slate-300 font-medium">Progress</span>
-                      <span className="bg-blue-600/20 text-blue-400 text-sm px-2 py-1 rounded">{projectProgress}%</span>
+                      <span className="rounded bg-cyan-300/15 px-2 py-1 text-sm font-bold text-cyan-100">{projectProgress}%</span>
                     </div>
 
                     <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -280,7 +287,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-slate-400 border-t border-slate-700 pt-4">
+                  <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-sm text-slate-400">
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
                       <span>{project.tasks.length} Tasks</span>
@@ -294,7 +301,7 @@ export default function ProjectsPage() {
                     <button
                       type="button"
                       onClick={() => deleteProject(project.id)}
-                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-500/90 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-500"
+                        className="mt-4 inline-flex h-9 items-center gap-2 rounded-lg border border-rose-300/20 bg-rose-500/90 px-4 text-xs font-bold text-white shadow-lg shadow-rose-950/20 transition hover:bg-rose-400"
                     >
                       <Trash2 size={16} />
                       Delete Project
