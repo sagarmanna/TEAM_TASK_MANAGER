@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Team Task Manager
 
-## Getting Started
+A full-stack team task management app with authentication, project management, task assignment, progress tracking, and Admin/Member role-based access control.
 
-First, run the development server:
+## Features
+
+- Signup and login with JWT authentication
+- Protected dashboard, projects, tasks, and REST API routes
+- Admin and Member roles
+- Project creation and progress tracking
+- Task creation, assignment, due dates, and status updates
+- Dashboard stats for total, completed, pending, and overdue tasks
+- PostgreSQL database with Prisma relationships
+- Railway-ready build setup
+
+## Tech Stack
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS
+- Next.js API routes
+- Prisma ORM
+- PostgreSQL
+- JWT and bcryptjs
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env`:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+JWT_SECRET="replace-with-a-secure-secret"
+```
+
+3. Push the Prisma schema:
+
+```bash
+npx prisma db push
+```
+
+4. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Roles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Admin:
 
-## Learn More
+- Create projects
+- Assign tasks to any team member
+- Update any assigned workflow allowed by the API
+- View dashboard, projects, users, and tasks
 
-To learn more about Next.js, take a look at the following resources:
+Member:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- View dashboard, projects, users, and tasks
+- Create tasks assigned to themselves unless an admin assigns otherwise
+- Update only their own task status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Routes
 
-## Deploy on Vercel
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/dashboard`
+- `GET /api/projects`
+- `POST /api/projects`
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PUT /api/tasks/[id]`
+- `GET /api/users`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Railway Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repository to GitHub.
+2. Create a new Railway project from the GitHub repo.
+3. Add a Railway PostgreSQL database.
+4. Set these environment variables in Railway:
+
+```env
+DATABASE_URL=<Railway PostgreSQL connection URL>
+JWT_SECRET=<long random secret>
+```
+
+5. Deploy the app.
+6. Run the Prisma schema push once from Railway shell or locally against the Railway database:
+
+```bash
+npx prisma db push
+```
+
+Railway should use:
+
+- Build command: `npm run build`
+- Start command: `npm start`
+
+## Submission
+
+- Live URL: publish the Railway production URL after deployment
+- GitHub repo: include the repository URL used for Railway deployment
+- Demo video: record a 2 to 5 minute walkthrough showing signup, login, project creation, task assignment, status update, dashboard stats, and role restrictions
+
+## Verification
+
+This project currently passes:
+
+```bash
+npm run lint
+npm run build
+```
