@@ -1,117 +1,148 @@
-# Team Task Manager
+# 🚀 Team Task Manager
 
-A full-stack team task management app with authentication, project management, task assignment, progress tracking, and Admin/Member role-based access control.
+A full-stack team task management application with authentication, project management, task assignment, progress tracking, and **Admin/Member role-based access control**.
 
-## Features
+---
 
-- Signup and login with JWT authentication
-- Protected dashboard, projects, tasks, and REST API routes
-- Admin and Member roles
-- Project creation and progress tracking
-- Task creation, assignment, due dates, and status updates
-- Dashboard stats for total, completed, pending, and overdue tasks
-- PostgreSQL database with Prisma relationships
-- Railway-ready build setup
+## 🌐 Live Demo
 
-## Tech Stack
+👉 https://teamtaskmanager-production-ee14.up.railway.app/
 
-- Next.js 16, React 19, TypeScript
-- Tailwind CSS
-- Next.js API routes
-- Prisma ORM
-- PostgreSQL
-- JWT and bcryptjs
+---
 
-## Local Setup
+## 🎥 Demo Video
 
-1. Install dependencies:
+👉 https://drive.google.com/file/d/1C1LFnqvfjcoE_IWJ6QLlG_KRbbnzymG6/view?usp=sharing
+
+---
+
+## ✨ Features
+
+* 🔐 JWT-based authentication (Signup/Login)
+* 🛡️ Protected dashboard, projects, tasks, and REST API routes
+* 👥 Admin and Member roles
+* 📁 Project creation and progress tracking
+* ✅ Task creation, assignment, due dates, and status updates
+* 📊 Dashboard stats for total, completed, pending, and overdue tasks
+* 🗄️ PostgreSQL database with Prisma relationships
+* 🚀 Railway-ready build setup
+
+---
+
+## 🧑‍💻 Tech Stack
+
+* **Frontend & Backend:** Next.js 16, React 19, TypeScript
+* **Styling:** Tailwind CSS
+* **API:** Next.js API Routes
+* **Database:** PostgreSQL
+* **ORM:** Prisma
+* **Auth:** JWT, bcryptjs
+
+---
+
+## ⚙️ Local Setup
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/your-username/team-task-manager.git
+cd team-task-manager
+```
+
+### 2️⃣ Install dependencies
 
 ```bash
 npm install
 ```
 
-2. Create `.env`:
+### 3️⃣ Create `.env` file
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-JWT_SECRET="replace-with-a-secure-secret"
+JWT_SECRET="your-secret-key"
 ```
 
-3. Push the Prisma schema:
+### 4️⃣ Setup database
 
 ```bash
 npx prisma db push
 ```
 
-4. Start the app:
+### 5️⃣ Run the app
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000.
+👉 Open: http://localhost:3000
 
-## Roles
+---
 
-Admin:
+## 👥 Roles & Permissions
 
-- Create projects
-- Assign tasks to any team member
-- Update any assigned workflow allowed by the API
-- View dashboard, projects, users, and tasks
+### 🛠️ Admin
 
-Member:
+* Create projects
+* Assign tasks to any team member
+* Update any assigned workflow allowed by the API
+* View dashboard, projects, users, and tasks
 
-- View dashboard, projects, users, and tasks
-- Create tasks assigned to themselves unless an admin assigns otherwise
-- Update only their own task status
+### 👤 Member
 
-## API Routes
+* View dashboard, projects, users, and tasks
+* Create tasks assigned to themselves unless an admin assigns otherwise
+* Update only their own task status
 
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/dashboard`
-- `GET /api/projects`
-- `POST /api/projects`
-- `GET /api/tasks`
-- `POST /api/tasks`
-- `PUT /api/tasks/[id]`
-- `GET /api/users`
+---
 
-## Railway Deployment
+## 🔌 API Routes
 
-1. Push this repository to GitHub.
-2. Create a new Railway project from the GitHub repo.
-3. Add a Railway PostgreSQL database.
-4. Set these environment variables in Railway:
+```
+POST   /api/auth/signup
+POST   /api/auth/login
+POST   /api/auth/logout
+
+GET    /api/dashboard
+
+GET    /api/projects
+POST   /api/projects
+
+GET    /api/tasks
+POST   /api/tasks
+PUT    /api/tasks/[id]
+
+GET    /api/users
+```
+
+---
+
+## 🚀 Deployment (Railway)
+
+1. Push this repository to GitHub
+2. Create a new Railway project from the GitHub repo
+3. Add a Railway PostgreSQL database
+4. Set environment variables:
 
 ```env
 DATABASE_URL=<Railway PostgreSQL connection URL>
 JWT_SECRET=<long random secret>
 ```
 
-5. Deploy the app.
-6. Run the Prisma schema push once from Railway shell or locally against the Railway database:
+5. Deploy the app
+6. Run the Prisma schema push once:
 
 ```bash
 npx prisma db push
 ```
 
-Railway should use:
+### ⚙️ Railway Config
 
-- Build command: `npm run build`
-- Start command: `npm start`
+* **Build:** `npm run build`
+* **Start:** `npm start`
 
-## Submission
+---
 
-- Live URL: publish the Railway production URL after deployment
-- GitHub repo: include the repository URL used for Railway deployment
-- Demo video: record a 2 to 5 minute walkthrough showing signup, login, project creation, task assignment, status update, dashboard stats, and role restrictions
-
-## Verification
-
-This project currently passes:
+## 🧪 Verification
 
 ```bash
 npm run lint
