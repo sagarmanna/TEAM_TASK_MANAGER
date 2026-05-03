@@ -56,7 +56,7 @@ export default function DashboardStats({
         <div className="mb-10 flex items-start justify-between">
           {/* 2. Icon Container with Glass Effect */}
           <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${style.border} ${style.bg} ${style.text} shadow-lg shadow-black/20`}>
-            {icon ? React.cloneElement(icon as React.ReactElement, { size: 24, strokeWidth: 2 }) : null}
+            {icon ? React.cloneElement(icon as React.ReactElement<{ size?: number; strokeWidth?: number }>, { size: 24, strokeWidth: 2 }) : null}
           </div>
 
           {/* 3. Fluid Wave Sparkline (SVG) */}
